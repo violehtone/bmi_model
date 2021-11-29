@@ -19,6 +19,7 @@ def parse_args():
     parser.add_argument('--output_file_name', type=str, required=True)
     return vars(parser.parse_args())
 
+
 if __name__ == '__main__':
     args = parse_args()
     tsv_to_json(**args)

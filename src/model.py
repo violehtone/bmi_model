@@ -1,25 +1,28 @@
 #!/usr/bin/env python3
-from sklearn.experimental import enable_iterative_imputer # noqa F401 required for imputation to work
-from sklearn import linear_model, impute, metrics, model_selection
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 import pickle
 import argparse
 import logging
 import datetime
-import matplotlib.pyplot as plt
+from sklearn.experimental import enable_iterative_imputer # noqa F401 required for imputation to work
+from sklearn import linear_model, impute, metrics, model_selection
 
 # Logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 
+# Output model name
+MODEL_FILENAME = "src/Lasso_model.pkl"
 
-def save_model_on_disk(model: linear_model, output_model_name: str):
+
+def save_model_on_disk(model: linear_model):
     """
     Saves the model on local disk
     """
-    logger.info(f"Saving the model as: {output_model_name}...")
-    pickle.dump(model, open(output_model_name, 'wb'))
+    logger.info(f"Saving the model as: {MODEL_FILENAME}...")
+    pickle.dump(model, open(MODEL_FILENAME, 'wb'))
     logger.info("Done!")
 
 
@@ -39,33 +42,50 @@ def preprocess_data(data: str, imputer: impute.IterativeImputer) \
     )
 
 
-def build_model(training_data: str, output_model_name: str,
-                imputer: impute.IterativeImputer) -> linear_model:
+def build_model(training_data: str, imputer: impute.IterativeImputer) \
+        -> linear_model:
     """
     Builds a Lasso regression model from the given training data
     """
+    # Preprocess the training data
     preprocessed_data = preprocess_data(data=training_data, imputer=imputer)
     X = preprocessed_data.drop(labels=["BMI", "ID"], axis=1, errors='ignore')
     y = pd.DataFrame(preprocessed_data["BMI"]).values.ravel()
 
     logger.info("Building a lasso regression model with 10-fold CV")
+    # Define the cross validation strategy
     cv = model_selection.RepeatedKFold(
         n_splits=10,
         n_repeats=3,
         random_state=1
     )
+    # Define a Lasso linear model with CV
     model = linear_model.LassoCV(
         alphas=np.arange(0.01, 1, 0.01),
         cv=cv,
         n_jobs=-1,
         tol=0.05
     )
+    # Fit the model
     model.fit(X, y)
 
     # Save model file on local disk
-    save_model_on_disk(model, output_model_name)
-
+    save_model_on_disk(model=model)
     return model
+
+
+def create_plot(expected: np.ndarray, prediction: np.ndarray, mse: float):
+    """
+    Create a simple plot of the expected vs. predicted BMI values and save
+    the file as 'plot.png'
+    """
+    plt.plot(expected)
+    plt.plot(prediction)
+    plt.legend(['Expected', 'Predicted'])
+    plt.title(f'Validation of the model on validation data\nMSE={mse}')
+    plt.xlabel('ID')
+    plt.ylabel('BMI')
+    plt.savefig("plot.png")
 
 
 def validate_model(test_data: str, imputer: impute.IterativeImputer,
@@ -91,26 +111,19 @@ def validate_model(test_data: str, imputer: impute.IterativeImputer,
         y.tolist(),
         prediction
     )
-    logger.info(mse)
+    logger.info(f"Mean squared error (MSE) of the model: {str(mse)}")
 
     # Plot the results
-    plt.plot(y)
-    plt.plot(prediction)
-    plt.legend(['Expected', 'Predicted'])
-    plt.title('Validation of the model on validation data')
-    plt.xlabel('ID')
-    plt.ylabel('BMI')
-    plt.savefig("plot.png")
+    create_plot(expected=y, prediction=prediction, mse=mse)
 
 
-def main(training_data: str, test_data: str, output_model_name: str):
-    # Define an imputer to be used for the datasets
+def main(training_data: str, test_data: str):
+    # Define a multivariate imputer to be used for the datasets
     imputer = impute.IterativeImputer(max_iter=10, random_state=0, tol=0.01)
 
     # Build the lasso regression model from the training data
     model = build_model(
         training_data=training_data,
-        output_model_name=output_model_name,
         imputer=imputer
     )
 
@@ -131,7 +144,6 @@ def parse_args():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument('--training_data', type=str, required=True)
-    parser.add_argument('--output_model_name', type=str, required=True)
     parser.add_argument('--test_data', type=str)
     return vars(parser.parse_args())
 
@@ -143,4 +155,4 @@ if __name__ == '__main__':
 
     # Print the execution time of the script
     execution_time = datetime.datetime.now() - start_time
-    logger.info(f"Execution time: {execution_time}")
+    logger.info(f"Model building execution time: {execution_time}")
