@@ -27,7 +27,7 @@ def predict_bmi():
     # predict BMI with the model
     prediction = model.predict(data)
     # Return prediction as json
-    return json.dumps(prediction.tolist())
+    return json.dumps({"bmi": prediction[0]})
 
 
 if __name__ == "__main__":
