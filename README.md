@@ -1,15 +1,15 @@
 # BMI prediction API
 ## About
-This project builds a predictive model based on a training data set and a server-side API that can take new data and
+This project builds a predictive model based on a training dataset and a server-side API that can take new data and
 return a prediction based on the model.
 
 ## How to run the program
 Using the BMI prediction API consists of 2 steps:
-1. Building the Lasso regression model with the `model.py` script and 
-2. Running the API with Docker.
+1. Building a Lasso regression model with the `src/model.py` script and 
+2. Running the API (`src/api.py`) with Docker.
 
 ### Step 1. Build the model
-The `model.py` scripts builds the lasso regression model that is trained with the training dataset (`training_data`)
+The `model.py` scripts builds a lasso regression model that is trained with the training dataset (`training_data`)
 provided. The generated model is saved on a local disk with a filename corresponding to the `output_model_name`
 argument. Optionally, a validation of the model can also be performed by providing `test_data`. Validation step
 caclulates the Mean Squared Error (MSE) of the generated model and draws a plot of the predicted vs. actual BMI values 
@@ -17,9 +17,9 @@ when the model was tested against the test data set.
 
 Example command:
 ```
-python model.py \
+python src/model.py \
     --training_data data/dataset1.tsv \
-    --output_model_name Lasso_model.pkl \
+    --output_model_name src/Lasso_model.pkl \
     --test_data data/dataset2.tsv
 ```
 

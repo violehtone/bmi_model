@@ -5,7 +5,7 @@ import pickle
 import pandas as pd
 import json
 
-MODEL_FILENAME = "Lasso_model.pkl"
+MODEL_FILENAME = "/app/src/Lasso_model.pkl"
 app = Flask(__name__)
 
 # Load the model

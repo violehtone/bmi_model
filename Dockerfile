@@ -11,7 +11,11 @@ COPY ./requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
 
 # Copy files to /app directory
-COPY . /app
+COPY utils/ /app/utils/
+COPY src/ /app/src/
+COPY data/ /app/data/
+RUN ls -la /app/src/*
 
 # Run the API
+WORKDIR /app/src
 CMD ["python", "api.py"]
