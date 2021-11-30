@@ -74,7 +74,7 @@ def build_model(training_data: str, imputer: impute.IterativeImputer) \
     return model
 
 
-def create_plot(expected: np.ndarray, prediction: np.ndarray, mse: float):
+def create_plot(expected: np.ndarray, prediction: np.ndarray, mse: float) -> None:
     """
     Create a simple plot of the expected vs. predicted BMI values and save
     the file as 'plot.png'
@@ -82,7 +82,7 @@ def create_plot(expected: np.ndarray, prediction: np.ndarray, mse: float):
     plt.plot(expected)
     plt.plot(prediction)
     plt.legend(['Expected', 'Predicted'])
-    plt.title(f'Validation of the model on validation data\nMSE={mse}')
+    plt.title(f'Validation of the model on test data\nMSE={mse}')
     plt.xlabel('ID')
     plt.ylabel('BMI')
     plt.savefig("plot.png")
@@ -91,10 +91,7 @@ def create_plot(expected: np.ndarray, prediction: np.ndarray, mse: float):
 def validate_model(test_data: str, imputer: impute.IterativeImputer,
                    model: linear_model) -> None:
     """
-    Validate the built model with a test data set.
-    :param test_data: .tsv file
-    :param imputer: imputer to replace missing values
-    :param model: linear model
+    Validate the built model with a test data set
     """
     logger.info(f"Validating the model with {test_data}...")
     preprocessed_test_data = preprocess_data(data=test_data, imputer=imputer)
@@ -117,7 +114,7 @@ def validate_model(test_data: str, imputer: impute.IterativeImputer,
     create_plot(expected=y, prediction=prediction, mse=mse)
 
 
-def main(training_data: str, test_data: str):
+def main(training_data: str, test_data: str) -> None:
     # Define a multivariate imputer to be used for the datasets
     imputer = impute.IterativeImputer(max_iter=10, random_state=0, tol=0.01)
 
@@ -136,7 +133,7 @@ def main(training_data: str, test_data: str):
         )
 
 
-def parse_args():
+def parse_args() -> dict:
     """
     Parses the input arguments. This model building script requires two .tsv
     files as its input. One for training the lasso regression model and
