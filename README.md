@@ -18,6 +18,8 @@ Using the BMI prediction API consists of 2 steps:
 1. Building a Lasso regression model with the `src/model.py` script and 
 2. Running the API (`src/api.py`) with Docker.
 
+All the required packages can be installed with `pip install -r requirements.txt`
+
 ### Step 1. Build the model
 The `model.py` scripts builds a lasso regression model that is trained with the training dataset (`training_data`)
 provided. The generated model is saved under the `src` folder with a filename `Lasso_model.pkl`. Optionally, a 
