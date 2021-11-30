@@ -33,12 +33,16 @@ def preprocess_data(data: str, imputer: impute.IterativeImputer) \
     imputation in case of missing values
     """
     logger.info(f"Reading {data} into a dataframe...")
-    training_data = pd.read_csv(data, sep='\t')
+    df = pd.read_csv(data, sep='\t')
 
+    # Remove rows where BMI is NA
+    df_subset = df[df['BMI'].notna()]
+
+    # Impute missing data
     logger.info(f"Imputing missing values (if any) in the {data}...")
     return pd.DataFrame(
-        data=imputer.fit_transform(training_data),
-        columns=training_data.columns
+        data=imputer.fit_transform(df_subset),
+        columns=df_subset.columns
     )
 
 
@@ -49,8 +53,8 @@ def build_model(training_data: str, imputer: impute.IterativeImputer) \
     """
     # Preprocess the training data
     preprocessed_data = preprocess_data(data=training_data, imputer=imputer)
-    X = preprocessed_data.drop(labels=["BMI", "ID"], axis=1, errors='ignore')
-    y = pd.DataFrame(preprocessed_data["BMI"]).values.ravel()
+    X = preprocessed_data.values[:, 2:]
+    y = preprocessed_data.values[:, 1]
 
     logger.info("Building a lasso regression model with 10-fold CV")
     # Define the cross validation strategy
@@ -64,7 +68,7 @@ def build_model(training_data: str, imputer: impute.IterativeImputer) \
         alphas=np.arange(0.01, 1, 0.01),
         cv=cv,
         n_jobs=-1,
-        tol=0.05
+        tol=0.02
     )
     # Fit the model
     model.fit(X, y)
@@ -74,7 +78,7 @@ def build_model(training_data: str, imputer: impute.IterativeImputer) \
     return model
 
 
-def create_plot(expected: np.ndarray, prediction: np.ndarray, mse: float) -> None:
+def create_plot(expected: pd.DataFrame, prediction: pd.DataFrame, mse: float) -> None:
     """
     Create a simple plot of the expected vs. predicted BMI values and save
     the file as 'plot.png'
@@ -95,12 +99,9 @@ def validate_model(test_data: str, imputer: impute.IterativeImputer,
     """
     logger.info(f"Validating the model with {test_data}...")
     preprocessed_test_data = preprocess_data(data=test_data, imputer=imputer)
-    X = preprocessed_test_data.drop(
-        labels=["BMI", "ID"],
-        axis=1,
-        errors='ignore'
-    )
-    y = pd.DataFrame(preprocessed_test_data["BMI"]).values.ravel()
+    X = preprocessed_test_data.values[:, 2:]
+    y = preprocessed_test_data.values[:, 1]
+
     prediction = model.predict(X)
 
     # Calculate accuracy of the predictions
