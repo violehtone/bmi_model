@@ -13,7 +13,7 @@ class TestApi(TestCase):
 
     def test_ping_successfully(self):
         """Test a successful request to the ping endpoint"""
-        response = self.CLIENT.get("/")
+        response = self.CLIENT.get("/ping")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, b"Ping!")
 

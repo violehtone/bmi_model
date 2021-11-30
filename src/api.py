@@ -14,7 +14,7 @@ with open("utils/required_features.txt", "rb") as features:
     REQUIRED_FEATURES = pickle.load(features)
 
 
-@app.route("/", methods=['GET'])
+@app.route("/ping", methods=['GET'])
 def ping():
     """Ping the server to verify that it is working."""
     return "Ping!"

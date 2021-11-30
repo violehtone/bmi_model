@@ -4,7 +4,7 @@ info:
   description: API for calculating BMI
   version: 1.0.0
 paths:
-  /:
+  /ping:
     get:
       summary: Ping the server.
       description: Verify that the server is up and running.

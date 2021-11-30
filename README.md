@@ -58,7 +58,7 @@ docker run -d -p 5000:5000 bmi-api
 ```
 
 You can verify that the API is running correctly by listing the currently running containers with `docker ps` command
-and by trying to ping the server wit e.g. `curl http://127.0.0.1:5000/`, which should return `Ping!`
+and by trying to ping the server wit e.g. `curl http://127.0.0.1:5000/ping`, which should return `Ping!`
 
 
 ### Step 3: Use the API to make predictions
@@ -67,7 +67,7 @@ yaml file is named as `openapi.yaml`. One can e.g. copy-paste the contents of th
 get an overview of the API.
 
 The API has 2 Endpoints:
-* **GET** `http://localhost:5000/` (Ping the API server)
+* **GET** `http://localhost:5000/ping` (Ping the API server)
 * **POST** `http://localhost:5000/bmi` (Predict BMI)
 
 The API's `/bmi` endpoint requires the data (predictor variables) in a JSON format. There is a helper script in
